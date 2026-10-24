@@ -1,0 +1,19 @@
+{
+  "multiplier": 4,
+  "mode": "fixed",
+  "disableKeybinds": false,
+  "dynamicTargetFrameRate": 0,
+  "dynamicExperimental56": false,
+  "forceOTA": false,
+  "showOverlay": false,
+  "overlayPosition": "top-left",
+  "patchFlipMetering": false,
+  "blackwellTransfusion": true,
+  "qualityValidWarp": false,
+  "disableMenuDetection": false,
+  "disableMvDilation": false,
+  "forceUiRecomposition": false,
+  "logPerformance": false,
+  "logMotionTracing": false
+}
+

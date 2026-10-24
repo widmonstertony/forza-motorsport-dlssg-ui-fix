@@ -1,0 +1,9 @@
+build/
+out/
+*.user
+*.suo
+*.VC.db
+*.log
+*.zip
+!release/*.zip
+
