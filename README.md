@@ -5,8 +5,9 @@
 ## 中文说明
 
 这是一个专门给 **Forza Motorsport** 使用的实验性 DLSS Multi Frame
-Generation 修复 Mod。它处理的不是普通抗锯齿模糊，而是开启 DLSS-G/MFG
-以后，右下角转速表、数字、车辆轮毂和部分运动物体出现重复轮廓或拖尾的问题。
+Generation 启用与修复 Mod。Motorsport 本身没有向玩家提供可用的原生帧生成
+开关；这个项目会利用游戏已有的 Streamline/DLSS 数据链，强制接通 RTX 40 系
+DLSS-G/MFG，再修复启用后出现的仪表、车辆轮毂与运动物体残影。
 
 ### 它是干什么的
 
@@ -14,7 +15,9 @@ Motorsport 的主 3D 场景和较晚绘制的 HUD/UI 可能通过不同的 Strea
 资源标记路径提交。帧生成如果把不同时间点的场景、运动矢量和 UI 当作同一帧的
 输入，就会在生成帧中重复插值 HUD，或让车辆边缘、轮毂落后于真实画面。
 
-这个 Mod 在游戏进程内完成三件事：
+这个 Mod 分为两层：第一层由修改后的 DLSSG-Transfusion 代理接管 Streamline
+调用、解锁并请求 2x–4x MFG；第二层负责让插帧所用的画面数据保持同步。第二层
+在游戏进程内完成三件事：
 
 1. 从 `slSetConstants` 取得游戏当前帧的权威 Frame Token。
 2. 把 Scene Color、Depth、Motion Vectors、HUDless Color 和 UI Color/Alpha
@@ -69,8 +72,8 @@ DLSSG-Transfusion 源文件。仓库和 Release **不包含**游戏文件、NVID
 - Microsoft Store/Xbox App 版 Forza Motorsport。
 - Windows 11、RTX 40 系显卡，并开启硬件加速 GPU 调度。
 - 游戏目录中已有支持 add-on 的 ReShade。
-- 已经可以工作的本地 DLSS/Streamline/MFG 环境。本 Mod 不下载或替换 NVIDIA
-  的 DLSS、DLSS-G 与模型文件。
+- 游戏目录中必须已有兼容的 NVIDIA Streamline、DLSS-G 运行库和模型文件。
+  本 Mod 会接通并控制这些接口，但不会分发或下载 NVIDIA 专有文件。
 
 ### 安装
 
@@ -86,8 +89,9 @@ DLSSG-Transfusion 源文件。仓库和 Release **不包含**游戏文件、NVID
 `-GameDir`。安装器会在游戏运行时拒绝写入，为所有被修改的文件创建备份，保留
 现有 ReShade 电影滤镜和其他 techniques，并只添加必需的 HUD carrier。
 
-游戏内按 **Insert** 打开 ReShade。发布配置请求固定 4x MFG；DLSS/NR 的质量与
-电影滤镜仍由现有 DLSS add-on 控制。
+游戏内按 **Insert** 打开 ReShade。安装成功后，原本没有原生 FG 开关的
+Motorsport 会通过代理请求固定 4x MFG；DLSS/NR 的质量与电影滤镜仍由现有
+DLSS add-on 控制。
 
 ### 卸载
 
@@ -108,10 +112,11 @@ powershell -ExecutionPolicy Bypass -File .\Uninstall.ps1
 
 ## English
 
-This is an experimental **Forza Motorsport** fix for a specific DLSS Multi
-Frame Generation failure mode. It targets repeated outlines and trails on the
-lower-right tachometer, numbers, car wheels and some moving geometry after
-DLSS-G/MFG is enabled. It is not a generic sharpening or anti-aliasing filter.
+This is an experimental DLSS Multi Frame Generation enabler and visual fix for
+**Forza Motorsport**. Motorsport does not expose a usable native frame-
+generation option. This project uses the game's existing Streamline/DLSS data
+path to force DLSS-G/MFG on RTX 40-series GPUs, then fixes the HUD, wheel and
+moving-geometry trails that appear after frame generation is enabled.
 
 ### What it does
 
@@ -120,7 +125,10 @@ Streamline resource-tagging paths. If frame generation consumes scene color,
 motion vectors and UI from different moments as one frame, generated frames may
 interpolate the HUD or leave wheels and vehicle edges behind the real image.
 
-This mod performs three local changes inside the game process:
+The mod has two layers. A modified DLSSG-Transfusion proxy intercepts the
+Streamline path and unlocks/requests 2x–4x MFG. The HUDless bridge then keeps
+the inputs used by frame generation synchronized. That second layer performs
+three local changes inside the game process:
 
 1. It captures the authoritative current Frame Token from `slSetConstants`.
 2. It binds Scene Color, Depth, Motion Vectors, HUDless Color and UI Color/Alpha
@@ -180,8 +188,9 @@ files, NVIDIA DLLs/models, ReShade binaries or Microsoft Detours.
 - Microsoft Store/Xbox App build of Forza Motorsport.
 - Windows 11 and an RTX 40-series GPU with Hardware-accelerated GPU scheduling.
 - ReShade with add-on support already installed in the game directory.
-- A working local DLSS/Streamline/MFG setup. The mod does not download or
-  replace NVIDIA DLSS, DLSS-G or model files.
+- Compatible NVIDIA Streamline, DLSS-G runtime and model files must already be
+  present in the game directory. The mod connects to and controls those APIs,
+  but does not distribute or download NVIDIA proprietary files.
 
 ### Installation
 
@@ -198,9 +207,10 @@ for another location. The installer refuses to write while the game is active,
 backs up every changed file, preserves existing ReShade film filters and other
 techniques, and only appends the required HUD carrier.
 
-Press **Insert** in game to open ReShade. The supplied profile requests fixed
-4x MFG; DLSS/NR quality and film-filter settings remain controlled by the
-existing DLSS add-on.
+Press **Insert** in game to open ReShade. After a successful installation, the
+proxy requests fixed 4x MFG even though Motorsport has no native FG option.
+DLSS/NR quality and film-filter settings remain controlled by the existing
+DLSS add-on.
 
 ### Uninstall
 
